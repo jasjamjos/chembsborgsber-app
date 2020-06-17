@@ -1,4 +1,4 @@
-import React, { useState, useEFfect, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import Burger from '../Burger/Burger';
 import BuildControls from '../Burger/BuildControls/BuildControls';
