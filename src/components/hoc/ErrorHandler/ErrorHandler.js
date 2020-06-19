@@ -8,22 +8,27 @@ const errorHandler = (WrappedComponent, axios) => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
+      let x,y
       const watchError = () => {
-        axios.interceptors.request.use(request => {
+        x = axios.interceptors.request.use(request => {
           setError(null)
           return request;
         });
         
-        axios.interceptors.response.use(
+        y = axios.interceptors.response.use(
           response => response,
           error => {
-            console.log("ERRORISTA")
             setError(error)
           }
         );
       };
       
       watchError();
+
+      return () => {
+        axios.interceptors.request.eject(x);
+        axios.interceptors.response.eject(y);
+      }
     },[])
 
     const errorConfirmedHandler = () => {
