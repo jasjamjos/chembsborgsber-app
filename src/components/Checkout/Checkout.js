@@ -24,7 +24,7 @@ const Checkout = (props) => {
     }
     
     setIngredients(fetchQuery());
-  }, [])
+  }, [props.location.search])
 
 
   return (

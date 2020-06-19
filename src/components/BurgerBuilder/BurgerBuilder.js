@@ -54,7 +54,7 @@ const BurgerBuilder = (props) => {
   const purchaseHandler = () => setPurchasing(!purchasing);
   
   const proceedPurchaseHandler = () => {
-    // setLoading(true);
+    setLoading(true);
     // const order = {
     //   ingredients: ingredients,
     //   price: totalPrice,

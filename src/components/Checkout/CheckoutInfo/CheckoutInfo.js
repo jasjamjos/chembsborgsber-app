@@ -11,7 +11,11 @@ const CheckoutInfo = () => {
       street: '',
       postalCode: '',
     }
-  });
+  })
+
+  const handlePersonalInfo = () => {
+    setPersonalInfo(personalInfo);
+  }
 
   return (
     <div className={classes.CheckoutInfo}>
@@ -21,7 +25,7 @@ const CheckoutInfo = () => {
         <input type="text" name="email" placeholder="Your mail" />
         <input type="text" name="street" placeholder="Street" />
         <input type="text" name="postal" placeholder="Postal code" />
-        <Button btnType="Success">ORDER</Button>
+        <Button btnType="Success" clicked={handlePersonalInfo}>ORDER</Button>
       </form>
     </div>
   );
