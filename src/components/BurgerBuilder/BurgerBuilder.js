@@ -23,7 +23,6 @@ const BurgerBuilder = (props) => {
   const [totalPrice, setTotalPrice] = useState(0);
   const [purchasable, setPurchasable] = useState(false);
   const [purchasing, setPurchasing] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
   
@@ -54,34 +53,12 @@ const BurgerBuilder = (props) => {
   const purchaseHandler = () => setPurchasing(!purchasing);
   
   const proceedPurchaseHandler = () => {
-    setLoading(true);
-    // const order = {
-    //   ingredients: ingredients,
-    //   price: totalPrice,
-    //   customer: {
-    //     name: 'Jasper Jose',
-    //     email: 'jasjamjos@gmail.com',
-    //     address: {
-    //       street: 'Test Street 69',
-    //       zipcode: '8000',
-    //       country: 'Finland'
-    //     }
-    //   },
-    //   deliveryMethod: 'fastest'
-    // }
-
-    // BurgerBuilderAPI.post('/orders.json', order)
-    // .then((response) => {
-    //   setPurchasing(false)
-    //   setLoading(false)
-    // }).catch((error) => {
-    //   setLoading(false)
-    //   setPurchasing(false)
-    // });
-    const params = Object.entries(ingredients)
+    let params = Object.entries(ingredients)
       .map(([key, val]) => {
         return `${encodeURIComponent(key)}=${encodeURIComponent(val)}`;
       }).join('&');
+
+    params += `&price=${totalPrice}`;
 
     props.history.push({
       pathname: '/checkout',
@@ -146,8 +123,6 @@ const BurgerBuilder = (props) => {
         </Aux>
       );
   }
-
-  loading && (orderSummary = <Spinner />);
 
   return (
     <Aux>

@@ -7,8 +7,8 @@ import classes from './NavigationItems.module.css'
 const NavigationItems = () => {
     return (
         <ul className={classes.NavigationItems}>
-            <Item link="/" active>Borgsber Builder</Item>
-            <Item link="/">Checkout</Item>
+            <Item exact link="/">Borgsber Builder</Item>
+            <Item link="/orders">Orders</Item>
         </ul>
     );
 }

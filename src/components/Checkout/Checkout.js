@@ -11,26 +11,27 @@ const Checkout = (props) => {
     cheese: 0,
     bacon: 0
   });
+  const [price, setPrice] = useState(0);
 
   useEffect(() => {
     const fetchQuery = () => {
       const query = new URLSearchParams(props.location.search);
       const data = {};
       for (let [key, value] of query.entries()) {
-        data[key] = +value;
+        key === 'price' ? setPrice(+value) : data[key] = +value;
       }
 
       return data;
     }
     
     setIngredients(fetchQuery());
-  }, [props.location.search])
+  }, [])
 
 
   return (
     <div>
       <CheckoutSummary {...props} ingredients={ingredients}/>
-      <Route path={`${props.match.path}/continue`} component={CheckoutInfo}/>
+      <Route path={`${props.match.path}/continue`} render={() => <CheckoutInfo {...props} price={price} ingredients={ingredients}/>}/>
     </div>
   );
 }
