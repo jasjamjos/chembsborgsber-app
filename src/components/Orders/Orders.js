@@ -11,18 +11,16 @@ const Orders = () => {
 
   useEffect(() => {
     const fetchOrders = async () => {
-      let orderList = [];
       await BurgerBuilderAPI.get('/orders.json')
         .then(({data}) => {
-          Object.entries(data).map(([key, val]) => {
-            orderList.push({...val, id: key});
+          const orderList = Object.entries(data).map(([key, val]) => {
+            return {...val, id: key}
           })
+          setOrders(orderList);
         })
         .catch((err) => {
           console.log(err)
         });
-
-      setOrders(orderList);
     }
 
     fetchOrders();
