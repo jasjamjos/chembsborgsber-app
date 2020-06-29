@@ -2,23 +2,48 @@ import React, { useState } from 'react';
 
 import { BurgerBuilderAPI } from '../../api';
 
+import Input from '../../UI/Input/Input';
 import Spinner from '../../UI/Spinner/Spinner';
 import Button from '../../UI/Button/Button';
 import classes from './CheckoutInfo.module.css';
 
 const CheckoutInfo = (props) => {
-  const [personalInfo, setPersonalInfo] = useState({
-    name: '',
-    email: '',
-    address: {
-      street: '',
-      postalCode: '',
+  const formObj = (type, cType, placeholder) => {
+    let obj = {
+      elementType: type,
+      value: ''
     }
+
+    if (type === 'select') {
+      obj.elementConfig = {
+        options: cType
+      }
+    } else {
+      obj.elementConfig = {
+        type: cType,
+        placeholder: placeholder
+      }
+    }
+
+    return {...obj}
+  }
+  
+  const [orderForm, setOrderForm] = useState({
+    name: formObj('input', 'text', 'Your Name'),
+    email: formObj('input', 'text', 'Your Email'),
+    street: formObj('input', 'text', 'Street'),
+    postalCode: formObj('input', 'text', 'Postal Code'),
+    country: formObj('input', 'text', 'Country'),
+    deliveryMethod: formObj('select', [
+      {value: 'fastest', displayValue: 'Fastest'},
+      {value: 'cheapest', displayValue: 'Cheapest'},
+    ], 'Your Name')
   });
+
 
   const [loading, setLoading ]= useState(false);
 
-  const handlePersonalInfo = async (event) => {
+  const handleOrderForm = async (event) => {
     event.preventDefault();
     setLoading(true);
 
@@ -46,16 +71,30 @@ const CheckoutInfo = (props) => {
       props.history.push('/');
     });
 
-    setPersonalInfo(personalInfo);
+    // setOrderInfo(OrderInfo);
   }
+
+  const forElementsArray = [];
+
+  Object.entries(orderForm).map(([key,el]) => {
+    forElementsArray.push({
+      id:key,
+      config: orderForm[key]
+    })
+  })
 
   let form = (
     <form>
-      <input className={classes.Input} type="text" name="name" placeholder="Your name" />
-      <input className={classes.Input} type="text" name="email" placeholder="Your mail" />
-      <input className={classes.Input} type="text" name="street" placeholder="Street" />
-      <input className={classes.Input} type="text" name="postal" placeholder="Postal code" />
-      <Button btnType="Success" clicked={handlePersonalInfo}>ORDER</Button>
+      {forElementsArray.map((formElement) => {
+        return (<Input
+          key={formElement.id}
+          elementType={formElement.config.elementType}
+          elementConfig={formElement.config.elementConfig}
+          value={formElement.config.value}
+          changed={}
+        />)
+      })}
+      <Button btnType="Success" clicked={handleOrderForm}>ORDER</Button>
     </form>
   );
 

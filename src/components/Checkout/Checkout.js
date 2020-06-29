@@ -14,8 +14,8 @@ const Checkout = (props) => {
   const [price, setPrice] = useState(0);
 
   useEffect(() => {
+    const query = new URLSearchParams(props.location.search);
     const fetchQuery = () => {
-      const query = new URLSearchParams(props.location.search);
       const data = {};
       for (let [key, value] of query.entries()) {
         key === 'price' ? setPrice(+value) : data[key] = +value;
