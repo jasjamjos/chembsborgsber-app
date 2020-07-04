@@ -40,15 +40,13 @@ const CheckoutInfo = (props) => {
     deliveryMethod: formObj('select', [
       {value: 'fastest', displayValue: 'Fastest'},
       {value: 'cheapest', displayValue: 'Cheapest'},
-    ], '', null, true)
+    ], 'fastest', {}, true)
   });
 
   const [formIsValid, setFormIsValid] = useState(true);
 
   const inputValidation = (value, rules) => {
     let isValid = true;
-    
-    if (rules == null) return true;
 
     if (rules.required) {
       isValid = value.trim() !== '' && isValid;
@@ -70,14 +68,12 @@ const CheckoutInfo = (props) => {
     newState.value = event.target.value;
     newState.isValid = inputValidation(newState.value, newState.validation);
     newState.touched = true;
-
-    Object.entries(orderForm).map(([key, value]) => {
-      console.log(key,value.isValid, formIsValid, value.isValid && formIsValid)
-      setFormIsValid(value.isValid && formIsValid);
-      console.log(formIsValid)
-    })
     
     setOrderForm({...orderForm}, {key: newState})
+
+    Object.entries(orderForm).map(([_, value]) => {
+      return setFormIsValid(value.isValid && formIsValid);
+    })
   }
 
   const [loading, setLoading ]= useState(false);
@@ -87,8 +83,8 @@ const CheckoutInfo = (props) => {
     setLoading(true);
 
     const formData = {};
-      Object.entries(orderForm).map(([key, value]) => {
-      formData[key] = value.value;
+    Object.entries(orderForm).map(([key, value]) => {
+      return formData[key] = value.value;
     })
 
     const order = {
@@ -106,6 +102,8 @@ const CheckoutInfo = (props) => {
       deliveryMethod: 'fastest'
     }
 
+    console.log(order)
+
     await BurgerBuilderAPI.post('/orders.json', formData)
     .then((response) => {
       setLoading(false)
@@ -120,7 +118,7 @@ const CheckoutInfo = (props) => {
   const forElementsArray = [];
 
   Object.entries(orderForm).map(([key,el]) => {
-    forElementsArray.push({
+    return forElementsArray.push({
       id:key,
       config: orderForm[key]
     })
@@ -140,7 +138,7 @@ const CheckoutInfo = (props) => {
           shouldValidate={formElement.config.validation}
         />)
       })}
-      <Button btnType="Success">ORDER</Button>
+      <Button disabled={!formIsValid} btnType="Success">ORDER</Button>
     </form>
   );
 
