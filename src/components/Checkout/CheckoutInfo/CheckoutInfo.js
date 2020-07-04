@@ -8,10 +8,13 @@ import Button from '../../UI/Button/Button';
 import classes from './CheckoutInfo.module.css';
 
 const CheckoutInfo = (props) => {
-  const formObj = (type, cType, placeholder) => {
+  const formObj = (type, cType, placeholder, validation, isValid) => {
     let obj = {
       elementType: type,
-      value: ''
+      value: '',
+      validation: validation,
+      isValid: isValid,
+      touched: false
     }
 
     if (type === 'select') {
@@ -29,23 +32,64 @@ const CheckoutInfo = (props) => {
   }
   
   const [orderForm, setOrderForm] = useState({
-    name: formObj('input', 'text', 'Your Name'),
-    email: formObj('input', 'text', 'Your Email'),
-    street: formObj('input', 'text', 'Street'),
-    postalCode: formObj('input', 'text', 'Postal Code'),
-    country: formObj('input', 'text', 'Country'),
+    name: formObj('input', 'text', 'Your Name', { required: true }, false),
+    email: formObj('input', 'text', 'Your Email', { required: true }, false),
+    street: formObj('input', 'text', 'Street', { required: true }, false),
+    postalCode: formObj('input', 'text', 'Postal Code', { required: true, minLength: 4, maxLength: 4 }, false),
+    country: formObj('input', 'text', 'Country', { required: true }, false),
     deliveryMethod: formObj('select', [
       {value: 'fastest', displayValue: 'Fastest'},
       {value: 'cheapest', displayValue: 'Cheapest'},
-    ], 'Your Name')
+    ], '', null, true)
   });
 
+  const [formIsValid, setFormIsValid] = useState(true);
+
+  const inputValidation = (value, rules) => {
+    let isValid = true;
+    
+    if (rules == null) return true;
+
+    if (rules.required) {
+      isValid = value.trim() !== '' && isValid;
+    }
+
+    if (rules.minLength) {
+      isValid = value.length >= rules.minLength && isValid;
+    }
+
+    if (rules.maxLength) {
+      isValid = value.length <= rules.maxLength && isValid;
+    } 
+
+    return isValid;
+  }
+
+  const inputChangedHandler = (event, key) => {
+    let newState = orderForm[key]
+    newState.value = event.target.value;
+    newState.isValid = inputValidation(newState.value, newState.validation);
+    newState.touched = true;
+
+    Object.entries(orderForm).map(([key, value]) => {
+      console.log(key,value.isValid, formIsValid, value.isValid && formIsValid)
+      setFormIsValid(value.isValid && formIsValid);
+      console.log(formIsValid)
+    })
+    
+    setOrderForm({...orderForm}, {key: newState})
+  }
 
   const [loading, setLoading ]= useState(false);
 
   const handleOrderForm = async (event) => {
     event.preventDefault();
     setLoading(true);
+
+    const formData = {};
+      Object.entries(orderForm).map(([key, value]) => {
+      formData[key] = value.value;
+    })
 
     const order = {
       ingredients: props.ingredients,
@@ -62,7 +106,7 @@ const CheckoutInfo = (props) => {
       deliveryMethod: 'fastest'
     }
 
-    await BurgerBuilderAPI.post('/orders.json', order)
+    await BurgerBuilderAPI.post('/orders.json', formData)
     .then((response) => {
       setLoading(false)
       props.history.push('/');
@@ -71,7 +115,6 @@ const CheckoutInfo = (props) => {
       props.history.push('/');
     });
 
-    // setOrderInfo(OrderInfo);
   }
 
   const forElementsArray = [];
@@ -84,17 +127,20 @@ const CheckoutInfo = (props) => {
   })
 
   let form = (
-    <form>
+    <form onSubmit={handleOrderForm}>
       {forElementsArray.map((formElement) => {
         return (<Input
           key={formElement.id}
           elementType={formElement.config.elementType}
           elementConfig={formElement.config.elementConfig}
           value={formElement.config.value}
-          changed={}
+          changed={(event) => inputChangedHandler(event, formElement.id)}
+          invalid={!formElement.config.isValid}
+          touched={formElement.config.touched}
+          shouldValidate={formElement.config.validation}
         />)
       })}
-      <Button btnType="Success" clicked={handleOrderForm}>ORDER</Button>
+      <Button btnType="Success">ORDER</Button>
     </form>
   );
 
