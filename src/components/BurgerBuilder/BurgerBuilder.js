@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
+import { connect } from 'react-redux';
+import * as actionTypes from '../../store/actions';
+
 import Burger from '../Burger/Burger';
 import BuildControls from '../Burger/BuildControls/BuildControls';
 import Modal from '../UI/Modal/Modal';
@@ -26,19 +29,19 @@ const BurgerBuilder = (props) => {
   const [error, setError] = useState(false);
 
   
-  useEffect(() => {
-    const fetchIngredients = () => {
-      BurgerBuilderAPI.get('/ingredients.json')
-      .then(({data}) => {
-          setIngredients(data);
-          updateTotalPrice(data);
-        }).catch((error) => {
-          setError(true);
-        });
-      }
+  // useEffect(() => {
+  //   const fetchIngredients = () => {
+  //     BurgerBuilderAPI.get('/ingredients.json')
+  //     .then(({data}) => {
+  //         setIngredients(data);
+  //         updateTotalPrice(data);
+  //       }).catch((error) => {
+  //         setError(true);
+  //       });
+  //     }
       
-      fetchIngredients();
-    }, [])
+  //     fetchIngredients();
+  //   }, [])
   
     const updatePurchaseState = (ingredients) => {
       const sum = Object.keys(ingredients)
@@ -100,23 +103,23 @@ const BurgerBuilder = (props) => {
   let burger = error ? <p style={{textAlign: 'center'}}>Ingredients can be loaded!</p> : <Spinner />
   let orderSummary;
   
-  if(ingredients) {
+  if(props.ingredients) {
     orderSummary = (
       <OrderSummary 
       purchaseCancelled={purchaseHandler} 
         purchaseContinued={proceedPurchaseHandler} 
-        ingredients={ingredients}
-        price={totalPrice}
+        ingredients={props.ingredients}
+        price={props.totalPrice}
         />
         )
         
         burger = (
         <Aux>
-          <Burger ingredients={ingredients}/>,
+          <Burger ingredients={props.ingredients}/>,
           <BuildControls
-              addIngredient={addIngredientHandler}
-              removeIngredient={removeIngredientHandler}
-            price={totalPrice}
+              addIngredient={props.onAddIngredient}
+              removeIngredient={props.onRemoveIngredient}
+            price={props.totalPrice}
             purchasable={purchasable}
             purchasing={purchaseHandler}
           />
@@ -132,6 +135,22 @@ const BurgerBuilder = (props) => {
       {burger}
     </Aux>
     );
+
+}
+
+const mapStateToProps = (state) => {
+  return {
+    ingredients: state.ingredients,
+    totalPrice: state.totalPrice
   }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    onAddIngredient: (ingredient) => dispatch({type: actionTypes.ADD_INGREDIENT, ingredient: ingredient}),
+    onRemoveIngredient: (ingredient) => dispatch({type: actionTypes.REMOVE_INGREDIENT, ingredient: ingredient})
+  }
+}
+
   
-  export default errorHandler(BurgerBuilder, BurgerBuilderAPI);
+export default connect(mapStateToProps, mapDispatchToProps)(errorHandler(BurgerBuilder, BurgerBuilderAPI));

@@ -102,8 +102,6 @@ const CheckoutInfo = (props) => {
       deliveryMethod: 'fastest'
     }
 
-    console.log(order)
-
     await BurgerBuilderAPI.post('/orders.json', formData)
     .then((response) => {
       setLoading(false)
