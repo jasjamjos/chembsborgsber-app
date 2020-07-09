@@ -27,77 +27,21 @@ const BurgerBuilder = (props) => {
   const [purchasable, setPurchasable] = useState(false);
   const [purchasing, setPurchasing] = useState(false);
   const [error, setError] = useState(false);
-
   
-  // useEffect(() => {
-  //   const fetchIngredients = () => {
-  //     BurgerBuilderAPI.get('/ingredients.json')
-  //     .then(({data}) => {
-  //         setIngredients(data);
-  //         updateTotalPrice(data);
-  //       }).catch((error) => {
-  //         setError(true);
-  //       });
-  //     }
-      
-  //     fetchIngredients();
-  //   }, [])
-  
-    const updatePurchaseState = (ingredients) => {
-      const sum = Object.keys(ingredients)
+  const updatePurchaseState = (ingredients) => {
+    const sum = Object.keys(ingredients)
       .map(key => ingredients[key])
       .reduce((sum, el) => {
-      return sum + el;
+    return sum + el;
     },0);
     
-    setPurchasable(sum > 0);
+    return sum > 0;
   }
   
   const purchaseHandler = () => setPurchasing(!purchasing);
   
   const proceedPurchaseHandler = () => {
-    let params = Object.entries(ingredients)
-      .map(([key, val]) => {
-        return `${encodeURIComponent(key)}=${encodeURIComponent(val)}`;
-      }).join('&');
-
-    params += `&price=${totalPrice}`;
-
-    props.history.push({
-      pathname: '/checkout',
-      search: `?${params}`
-    });
-  }
-  
-  const addIngredientHandler = (type) => {
-    const allIngredients = {...ingredients};
-    
-    allIngredients[type] = allIngredients[type] + 1;
-    
-    setIngredients(allIngredients);
-    updateTotalPrice(allIngredients);
-    updatePurchaseState(allIngredients);
-  }
-  
-  const removeIngredientHandler = (type) => {
-    const allIngredients = {...ingredients};
-    
-    if (allIngredients[type] > 0) {
-      allIngredients[type] = allIngredients[type] - 1;
-      
-      setIngredients(allIngredients);
-      updateTotalPrice(allIngredients);
-      updatePurchaseState(allIngredients);
-    };
-  }
-  
-  const updateTotalPrice = (ingredients) => {
-    const totalPrice = Object.keys(ingredients)
-    .map((ingredient) => {
-      return INGREDIENT_PRICES[ingredient] * ingredients[ingredient];
-    }).reduce((sum, curr) => sum + curr);
-    
-    setTotalPrice(totalPrice);
+    props.history.push('/checkout');
   }
   
   let burger = error ? <p style={{textAlign: 'center'}}>Ingredients can be loaded!</p> : <Spinner />
@@ -120,7 +64,7 @@ const BurgerBuilder = (props) => {
               addIngredient={props.onAddIngredient}
               removeIngredient={props.onRemoveIngredient}
             price={props.totalPrice}
-            purchasable={purchasable}
+            purchasable={updatePurchaseState(props.ingredients)}
             purchasing={purchaseHandler}
           />
         </Aux>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-
+import { connect } from 'react-redux';
 import { BurgerBuilderAPI } from '../../api';
+
 
 import Input from '../../UI/Input/Input';
 import Spinner from '../../UI/Spinner/Spinner';
@@ -89,20 +90,20 @@ const CheckoutInfo = (props) => {
 
     const order = {
       ingredients: props.ingredients,
-      price: props.price,
+      price: props.totalPrice,
       customer: {
-        name: 'Jasper Jose',
-        email: 'jasjamjos@gmail.com',
+        name: orderForm.name,
+        email: orderForm.email,
         address: {
-          street: 'Test Street 69',
-          zipcode: '8000',
-          country: 'Finland'
+          street: orderForm.street,
+          zipcode: orderForm.postalCode,
+          country: orderForm.country
         }
       },
-      deliveryMethod: 'fastest'
+      deliveryMethod: orderForm.deliveryMethod
     }
 
-    await BurgerBuilderAPI.post('/orders.json', formData)
+    await BurgerBuilderAPI.post('/orders.json', order)
     .then((response) => {
       setLoading(false)
       props.history.push('/');
@@ -150,4 +151,11 @@ const CheckoutInfo = (props) => {
   );
 }
 
-export default CheckoutInfo;
+const mapStateToProps = (state) => {
+  return {
+    ingredients: state.ingredients,
+    totalPrice: state.totalPrice
+  }
+}
+
+export default connect(mapStateToProps)(CheckoutInfo);
