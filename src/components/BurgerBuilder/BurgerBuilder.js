@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import { connect } from 'react-redux';
-import * as actionTypes from '../../store/actions';
+import * as burgerBuilderActions from '../../store/actions';
 
 import Burger from '../Burger/Burger';
 import BuildControls from '../Burger/BuildControls/BuildControls';
@@ -13,20 +13,18 @@ import errorHandler from '../hoc/ErrorHandler/ErrorHandler';
 
 import Spinner from '../UI/Spinner/Spinner';
 
-const INGREDIENT_PRICES = {
-  salad: 0.5,
-  cheese: 0.3,
-  meat: 1.3,
-  bacon: 1.1
-}
-
 const BurgerBuilder = (props) => {
-  const [ingredients, setIngredients] = useState(null);
-  
-  const [totalPrice, setTotalPrice] = useState(0);
-  const [purchasable, setPurchasable] = useState(false);
   const [purchasing, setPurchasing] = useState(false);
-  const [error, setError] = useState(false);
+  // const [error, setError] = useState(false);
+
+  useEffect(() => {
+    let prevIngredients = {...props.ingredients}
+    const setIngredients = async () => {
+      await props.onInitIngredients();
+    }
+
+    if (prevIngredients !== props.ingredients) setIngredients();
+  }, []);
   
   const updatePurchaseState = (ingredients) => {
     const sum = Object.keys(ingredients)
@@ -44,31 +42,31 @@ const BurgerBuilder = (props) => {
     props.history.push('/checkout');
   }
   
-  let burger = error ? <p style={{textAlign: 'center'}}>Ingredients can be loaded!</p> : <Spinner />
+  let burger = props.error ? <p style={{textAlign: 'center'}}>Ingredients can be loaded!</p> : <Spinner />
   let orderSummary;
   
   if(props.ingredients) {
     orderSummary = (
       <OrderSummary 
-      purchaseCancelled={purchaseHandler} 
+        purchaseCancelled={purchaseHandler} 
         purchaseContinued={proceedPurchaseHandler} 
         ingredients={props.ingredients}
         price={props.totalPrice}
-        />
-        )
+      />
+    )
         
-        burger = (
-        <Aux>
-          <Burger ingredients={props.ingredients}/>,
-          <BuildControls
-              addIngredient={props.onAddIngredient}
-              removeIngredient={props.onRemoveIngredient}
-            price={props.totalPrice}
-            purchasable={updatePurchaseState(props.ingredients)}
-            purchasing={purchaseHandler}
-          />
-        </Aux>
-      );
+    burger = (
+      <Aux>
+        <Burger ingredients={props.ingredients}/>,
+        <BuildControls
+          addIngredient={props.onAddIngredient}
+          removeIngredient={props.onRemoveIngredient}
+          price={props.totalPrice}
+          purchasable={updatePurchaseState(props.ingredients)}
+          purchasing={purchaseHandler}
+        />
+      </Aux>
+    );
   }
 
   return (
@@ -85,16 +83,18 @@ const BurgerBuilder = (props) => {
 const mapStateToProps = (state) => {
   return {
     ingredients: state.ingredients,
-    totalPrice: state.totalPrice
+    totalPrice: state.totalPrice,
+    error: state.error
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    onAddIngredient: (ingredient) => dispatch({type: actionTypes.ADD_INGREDIENT, ingredient: ingredient}),
-    onRemoveIngredient: (ingredient) => dispatch({type: actionTypes.REMOVE_INGREDIENT, ingredient: ingredient})
+    onAddIngredient: (ingredient) => dispatch(burgerBuilderActions.addIngredient(ingredient)),
+    onRemoveIngredient: (ingredient) => dispatch(burgerBuilderActions.removeIngredient(ingredient)),
+    onInitIngredients: () => dispatch(burgerBuilderActions.initIngredients())
   }
 }
 
-  
+
 export default connect(mapStateToProps, mapDispatchToProps)(errorHandler(BurgerBuilder, BurgerBuilderAPI));
