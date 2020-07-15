@@ -16,11 +16,18 @@ export const purchaseBurgerFail = (error) => {
   }
 }
 
-export const purchaseBurgerStart = (orderData) => {
+export const purchaseBurgerStart = () => {
+  return {
+    type: actionTypes.PURCHASE_BURGER_START
+  }
+}
+
+export const purchaseBurger = (orderData) => {
   return async dispatch => {
+    dispatch(purchaseBurgerStart());
     await BurgerBuilderAPI.post('/orders.json', orderData)
       .then((response) => {
-        console.log(response.data);
+        console.log(orderData);
         dispatch(purchaseBurgerSuccess(response.data, orderData));
       })
       .catch((error) => {

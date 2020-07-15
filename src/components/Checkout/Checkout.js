@@ -1,22 +1,27 @@
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import CheckoutSummary from './CheckoutSummary/CheckoutSummary';
 import CheckoutInfo from './CheckoutInfo/CheckoutInfo';
 
 const Checkout = (props) => {
-  return (
-    <div>
-      <CheckoutSummary {...props} ingredients={props.ingredients}/>
-      <Route path={`${props.match.path}/continue`} component={CheckoutInfo}/>
-    </div>
-  );
+  let summary = <Redirect to="/" />
+  if (props.ingredients) { 
+    summary = (
+      <div>
+        <CheckoutSummary {...props} ingredients={props.ingredients}/>
+        <Route path={`${props.match.path}/continue`} component={CheckoutInfo}/>
+      </div>
+    )
+  }
+
+  return summary;
 }
 
 const mapStateToProps = (state) => {
   return {
-    ingredients: state.ingredients,
+    ingredients: state.burgerBuilder.ingredients,
   }
 }
 

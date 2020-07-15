@@ -15,7 +15,6 @@ import Spinner from '../UI/Spinner/Spinner';
 
 const BurgerBuilder = (props) => {
   const [purchasing, setPurchasing] = useState(false);
-  // const [error, setError] = useState(false);
 
   useEffect(() => {
     let prevIngredients = {...props.ingredients}
@@ -82,9 +81,9 @@ const BurgerBuilder = (props) => {
 
 const mapStateToProps = (state) => {
   return {
-    ingredients: state.ingredients,
-    totalPrice: state.totalPrice,
-    error: state.error
+    ingredients: state.burgerBuilder.ingredients,
+    totalPrice: state.burgerBuilder.totalPrice,
+    error: state.burgerBuilder.error
   }
 }
 

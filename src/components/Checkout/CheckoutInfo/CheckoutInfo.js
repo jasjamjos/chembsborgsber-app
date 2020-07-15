@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { BurgerBuilderAPI } from '../../api';
 
-
 import Input from '../../UI/Input/Input';
 import Spinner from '../../UI/Spinner/Spinner';
 import Button from '../../UI/Button/Button';
 import classes from './CheckoutInfo.module.css';
+
+import errorHandler from '../../hoc/ErrorHandler/ErrorHandler';
+import * as actions from '../../../store/actions'
 
 const CheckoutInfo = (props) => {
   const formObj = (type, cType, placeholder, validation, isValid) => {
@@ -92,25 +94,27 @@ const CheckoutInfo = (props) => {
       ingredients: props.ingredients,
       price: props.totalPrice,
       customer: {
-        name: orderForm.name,
-        email: orderForm.email,
+        name: orderForm.name.value,
+        email: orderForm.email.value,
         address: {
-          street: orderForm.street,
-          zipcode: orderForm.postalCode,
-          country: orderForm.country
+          street: orderForm.street.value,
+          zipcode: orderForm.postalCode.value,
+          country: orderForm.country.value
         }
       },
-      deliveryMethod: orderForm.deliveryMethod
+      deliveryMethod: orderForm.deliveryMethod.value
     }
 
-    await BurgerBuilderAPI.post('/orders.json', order)
-    .then((response) => {
-      setLoading(false)
-      props.history.push('/');
-    }).catch((error) => {
-      setLoading(false)
-      props.history.push('/');
-    });
+    props.onOrder(order)
+
+    // await BurgerBuilderAPI.post('/orders.json', order)
+    // .then((response) => {
+    //   setLoading(false)
+    //   props.history.push('/');
+    // }).catch((error) => {
+    //   setLoading(false)
+    //   props.history.push('/');
+    // });
 
   }
 
@@ -141,7 +145,7 @@ const CheckoutInfo = (props) => {
     </form>
   );
 
-  loading && (form = <Spinner />);
+  props.loading && (form = <Spinner />);
 
   return (
     <div className={classes.CheckoutInfo}>
@@ -153,9 +157,16 @@ const CheckoutInfo = (props) => {
 
 const mapStateToProps = (state) => {
   return {
-    ingredients: state.ingredients,
-    totalPrice: state.totalPrice
+    ingredients: state.burgerBuilder.ingredients,
+    totalPrice: state.burgerBuilder.totalPrice,
+    loading: state.burgerBuilder.loading
   }
 }
 
-export default connect(mapStateToProps)(CheckoutInfo);
+const mapDispatchToProps = (dispatch) => {
+  return {
+    onOrder: (orderData) => dispatch(actions.purchaseBurger(orderData))
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(CheckoutInfo);
